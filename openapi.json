@@ -1,0 +1,170 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "CMG",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/problem": {
+      "post": {
+        "summary": "Fetch `thing1`",
+        "operationId": "get_problem",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Var"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Answer": {
+        "type": "object",
+        "properties": {
+          "numerical": {
+            "type": "number",
+            "format": "float"
+          },
+          "stringified": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "numerical",
+          "stringified"
+        ]
+      },
+      "Error": {
+        "description": "Error information from a response.",
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "request_id"
+        ]
+      },
+      "Question": {
+        "type": "object",
+        "properties": {
+          "repr": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TokenRepr"
+            }
+          },
+          "stringified": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "repr",
+          "stringified"
+        ]
+      },
+      "Symb": {
+        "type": "string",
+        "enum": [
+          "Plus",
+          "Minus",
+          "Multiplication",
+          "Division",
+          "End"
+        ]
+      },
+      "TokenRepr": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "End"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "Symbol": {
+                "$ref": "#/components/schemas/Symb"
+              }
+            },
+            "required": [
+              "Symbol"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "Number": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "Number"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Var": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/Answer"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            }
+          },
+          "question": {
+            "$ref": "#/components/schemas/Question"
+          }
+        },
+        "required": [
+          "answer",
+          "choices",
+          "question"
+        ]
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}

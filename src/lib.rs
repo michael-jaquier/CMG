@@ -1,10 +1,15 @@
 use std::fmt::Display;
 
 use rand::Rng;
-use serde::Serialize;
 use thiserror::Error;
 
-#[derive(Serialize, Clone, Debug, Error)]
+#[cfg(feature = "server")]
+use schemars::JsonSchema;
+
+#[cfg(feature = "server")]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Error)]
 pub enum CgmError {
     #[error("invalid integer token {0}")]
     ParseIntegerError(String),
@@ -16,7 +21,8 @@ pub enum CgmError {
 
 pub type CgmResult<T> = Result<T, CgmError>;
 
-#[derive(Serialize, Clone, Default, Copy)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
+#[derive(Clone, Default, Copy)]
 pub enum ProblemLevel {
     #[default]
     One = 1,
@@ -24,7 +30,8 @@ pub enum ProblemLevel {
     Three = 3,
 }
 
-#[derive(Serialize, Clone, Default, Copy)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
+#[derive(Clone, Default, Copy)]
 pub enum ProblemType {
     #[default]
     Addition,
@@ -61,7 +68,8 @@ fn problems(pl: ProblemLevel, pt: ProblemType) -> Question {
     }
 }
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Clone, Default)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
 pub struct Request {
     plevel: ProblemLevel,
     ptype: ProblemType,
@@ -81,7 +89,8 @@ pub fn request(r: Option<Request>) -> Var {
     }
 }
 
-#[derive(Serialize, Clone, Default, Debug, Copy, PartialEq)]
+#[derive(Clone, Default, Debug, Copy, PartialEq)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
 enum Symb {
     Plus,
     Minus,
@@ -104,7 +113,8 @@ impl Display for Symb {
     }
 }
 
-#[derive(Serialize, Clone, Default, Debug, PartialEq)]
+#[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
 enum TokenRepr {
     Symbol(Symb),
     Number(u32),
@@ -163,7 +173,8 @@ impl TokenRepr {
     }
 }
 
-#[derive(Serialize, Clone, Default, Debug)]
+#[derive(Clone, Default, Debug)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
 pub struct Question {
     stringified: String,
     repr: Vec<TokenRepr>,
@@ -174,13 +185,15 @@ impl Question {
     }
 }
 
-#[derive(Serialize, Clone, Default, Debug)]
+#[derive(Clone, Default, Debug)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
 pub struct Answer {
     stringified: String,
     numerical: f32,
 }
 
-#[derive(Serialize, Clone, Default, Debug)]
+#[derive(Clone, Default, Debug)]
+#[cfg_attr(feature = "server", derive(Serialize, Deserialize, JsonSchema))]
 pub struct Var {
     question: Question,
     answer: Answer,
@@ -188,10 +201,9 @@ pub struct Var {
 }
 
 #[cfg(test)]
-mod tests {
-
+#[cfg(feature = "server")]
+mod server_tests {
     use super::*;
-
     #[test]
     fn json_output() {
         let var = Var::default();
@@ -200,6 +212,12 @@ mod tests {
             println!("{:?}", out);
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
 
     #[test]
     fn generate_problems() {
