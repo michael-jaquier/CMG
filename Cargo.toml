@@ -2,6 +2,12 @@
 name = "cmg"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+authors = ["Michael Jaquier <michael.jaquier@nexthink.com>"]
+description = "A math game for children"
+repository = "https://github.com/michael-jaquier/CMG"
+readme = "README.md"
+keywords = ["math", "game", "children"]
 
 [dependencies]
 rand = "0.9.0"
